@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>D3 - Data Driven Documents</title>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="http://underscorejs.org/underscore-min.js" charset="utf-8"></script>
+    <style type="text/css">
+      body {
+        padding-top: 50px;
+        padding-left: 100px;
+      }
+      #chartArea {
+        width: 500px;
+        height: 300px;
+        background-color: #eee;
+      }
+      .bar {
+        display: inline-block;
+        width: 20px;
+        height: 75px; /* Gets overriden by D3-assigned height below */
+        margin-right: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chartArea"></div>
+    <script type="text/javascript">
+      var dataset = _.map(_.range(75), function (i ) {
+        return _.random(500);
+      });
+      var margin = { top: 25, right: 0, bottom: 30, left: 40 },
+        w = 500 - margin.left - margin.right,
+        h = 300 - margin.top - margin.bottom,
+        multiplier = 5;
+
+      var svg = d3.select('#chartArea').append('svg')
+        .attr('width', w + margin.left + margin.right)
+        .attr('height', h + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
+
+      var xScale = d3.scale.ordinal()
+        .domain(dataset)
+        .rangeBands([0, w], 0.2, 0);
+
+      var yScale = d3.scale.linear()
+        .domain([0, d3.max(dataset) * 1.1])
+        .range([0, h]);
+
+      /*
+      var colorScale = d3.scale.quantize()
+        .domain([0, dataset.length])
+        .range(['yellow', 'purple', 'orange', 'green']);
+      */
+
+      var colorScale = d3.scale.quantile()
+       .domain([0, 10, dataset.length - 10, dataset.length])
+       .range(['orange', 'purple', 'green']);
+
+      svg.selectAll('rect')
+        .data(dataset)
+        .enter()
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', function (d, i) {
+          return xScale(d);
+        })
+        .attr('y', function (d) {
+          return h - yScale(d);
+        })
+        .attr('width', xScale.rangeBand())
+        .attr('height', function (d) {
+          return yScale(d);
+        })
+        .attr('fill', function (d, i) {
+          return colorScale(i);
+        });
+    </script>
+  </body>
+</html>
